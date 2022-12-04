@@ -50,14 +50,15 @@ function s:generate_list(opt, ctx, kw, item) abort
   let l:Func = get(a:item, 'function', v:none)
   let l:args = get(a:item, 'args', [])
 
+  let l:cache = []
+
   " type check
   if v:t_string != type(l:name)
     echomsg '[anylist]: name is invalid type:' string(a:item)
-    return
+    return l:cache
   endif
 
   " generate base list
-  let l:cache = []
   if l:list isnot v:none && v:t_list == type(l:list)
     let l:cache = l:list
   elseif l:Func isnot v:none && v:t_func == type(l:Func) && v:t_list == type(l:args)
