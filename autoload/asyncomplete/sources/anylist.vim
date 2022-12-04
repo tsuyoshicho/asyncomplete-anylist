@@ -47,7 +47,7 @@ endfunction
 function s:generate_list(opt, ctx, kw, item) abort
   let l:name = get(a:item, 'name', 'none')
   let l:list = get(a:item, 'list', v:none)
-  let l:func = get(a:item, 'function', v:none)
+  let l:Func = get(a:item, 'function', v:none)
   let l:args = get(a:item, 'args', [])
 
   " type check
@@ -60,9 +60,9 @@ function s:generate_list(opt, ctx, kw, item) abort
   let l:cache = []
   if l:list isnot v:none && v:t_list == type(l:list)
     let l:cache = l:list
-  elseif l:func isnot v:none && v:t_func == type(l:func) && v:t_list == type(l:args)
+  elseif l:Func isnot v:none && v:t_func == type(l:Func) && v:t_list == type(l:args)
     try
-      let l:cache = call(l:func, l:args)
+      let l:cache = call(l:Func, l:args)
     catch
       echomsg '[anylist]: function call failed:' string(a:item)
       return l:cache
