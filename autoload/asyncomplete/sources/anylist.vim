@@ -63,7 +63,7 @@ function s:generate_list(opt, ctx, kw, item) abort
     let l:cache = copy(l:list)
   elseif l:Func isnot v:none && v:t_func == type(l:Func) && v:t_list == type(l:args)
     try
-      let l:cache = call(l:Func, l:args)
+      let l:cache = copy(call(l:Func, l:args))
     catch
       echomsg '[anylist]: function call failed:' string(a:item)
       return l:cache
