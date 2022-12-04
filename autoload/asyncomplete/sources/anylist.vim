@@ -7,43 +7,57 @@
 scriptencoding utf-8
 
 function! asyncomplete#sources#anylist#completor(opt, ctx) abort
+  let l:typed = a:ctx['typed']
+  let l:col = a:ctx['col']
+  let l:cache = []
+
   " check config is exists
-  if !has_key(a:opt, 'config')
-    call asyncomplete#complete(a:opt['name'], a:ctx, l:startcol, [])
+  let l:config = get(a:opt, 'config', v:none)
+  if l:config is v:none || v:t_dict != type(l:config)
+    " config is nothing, exit
+    call asyncomplete#complete(a:opt['name'], a:ctx, l:col, l:cache)
     return
   endif
 
-  l:items = get(a:opt['config'], 'items', [])
+  let l:matcher = get(l:config, 'matcher', '\w+$')
+  let l:items = get(l:config, 'items', [])
 
-  " check items is list
-  if v:t_list != type(l:items)
-    call asyncomplete#complete(a:opt['name'], a:ctx, l:startcol, [])
+  " check matcher is string and items is list
+  if  v:t_string != type(l:matcher) || v:t_list != type(l:items)
+    echomsg '[anylist]: matcher or items are invalid type:' string(l:matcher)  string(l:items)
+    call asyncomplete#complete(a:opt['name'], a:ctx, l:col, l:cache)
     return
   endif
 
-  l:cache = []
+  " detect match string
+  let l:kw = matchstr(l:typed, l:matcher)
+  let l:kwlen = len(l:kw)
+  let l:startcol = l:col - l:kwlen
+
+  " process items
   for l:item in l:items
     if v:t_dict == type(l:item)
-      call s:s:generate_list(a:opt, a:ctx, l:item)
+      call extend(l:cache, s:s:generate_list(a:opt, a:ctx, l:kw, l:item))
     endif
   endfor
 
+  call asyncomplete#complete(a:opt['name'], a:ctx, l:startcol, l:cache)
 endfunction
 
-function s:generate_list(opt, ctx, item) abort
-  let l:name = get(a:item, 'name', 'anylist')
-  let l:matcher = get(a:item, 'matcher', '\w+$')
+function s:generate_list(opt, ctx, kw, item) abort
+  let l:name = get(a:item, 'name', 'none')
   let l:list = get(a:item, 'list', v:none)
   let l:func = get(a:item, 'function', v:none)
   let l:args = get(a:item, 'args', [])
 
   " type check
-  if v:t_string != type(l:name) || v:t_string != type(l:matcher)
-    echomsg '[anylist]: name or matcher are invalid type:' string(a:item)
+  if v:t_string != type(l:name)
+    echomsg '[anylist]: name is invalid type:' string(a:item)
     return
   endif
 
   " generate base list
+  let l:cache = []
   if l:list isnot v:none && v:t_list == type(l:list)
     let l:cache = l:list
   elseif l:func isnot v:none && v:t_func == type(l:func) && v:t_list == type(l:args)
@@ -51,24 +65,17 @@ function s:generate_list(opt, ctx, item) abort
       let l:cache = call(l:func, l:args)
     catch
       echomsg '[anylist]: function call failed:' string(a:item)
-      return
+      return l:cache
     endtry
   else
-    echomsg '[anylist]: list and function do not exists or are invalid type:' string(a:item)
-    return
+    echomsg '[anylist]: list and function(args) do not exists or are invalid type:' string(a:item)
+    return l:cache
   endif
 
-  let l:typed = a:ctx['typed']
-  let l:col = a:ctx['col']
+  call filter(l:cache, {idx, v -> match(v, '\c^' . escape(a:kw, '\')) != -1})
+  call map(l:cache, {idx, v -> {'dup' : 1, 'icase' : 1, 'menu' : '[anylist:' .. l:name .. ']', 'word': v}})
 
-  let l:kw = matchstr(l:typed, l:matcher)
-  let l:kwlen = len(l:kw)
-  let l:startcol = l:col - l:kwlen
-
-  call filter(l:cache, {idx, v -> match(v, '\c^' . escape(l:kw, '\')) != -1})
-  call map(l:cache, {idx, v -> {'dup' : 1, 'icase' : 1, 'menu' : '[' .. l:name .. ']', 'word': v}})
-
-  call asyncomplete#complete(a:opt['name'], a:ctx, l:startcol, l:cache)
+  return l:cache
 endfunction
 
 function! asyncomplete#sources#anylist#get_source_options(opts) abort
