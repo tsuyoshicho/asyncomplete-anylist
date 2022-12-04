@@ -1,4 +1,3 @@
-
 # Created by https://www.toptal.com/developers/gitignore/api/windows,linux,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,linux,macos
 
@@ -70,5 +69,8 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# specific
+/doc/tags*
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,linux,macos
