@@ -60,7 +60,7 @@ function s:generate_list(opt, ctx, kw, item) abort
 
   " generate base list
   if l:list isnot v:none && v:t_list == type(l:list)
-    let l:cache = l:list
+    let l:cache = copy(l:list)
   elseif l:Func isnot v:none && v:t_func == type(l:Func) && v:t_list == type(l:args)
     try
       let l:cache = call(l:Func, l:args)
