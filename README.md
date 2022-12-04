@@ -6,7 +6,7 @@ Configurable list source for [asyncomplete.vim](https://github.com/prabirshresth
 
 ```vim
 function! s:gen() abort
-  return ['Destination', 'Example']
+  return ['tips', 'tomorrow']
 endfunction
 
 autocmd User asyncomplete_setup call
@@ -18,10 +18,12 @@ autocmd User asyncomplete_setup call
 \     'config': {
 \       'matcher': '\(\w\|\f\)+$',
 \       'items': [
-\         {'name': 'fixed', 'list': ['Username', 'Data']},
+\         {'name': 'sign', 'list': ['tsuyoshicho']},
 \         {'name': 'func', 'function': function('s:gen'), 'args': []},
 \       ],
 \     },
 \     'priority': 20,
 \   }))
 ```
+
+![sample result](https://github.com/tsuyoshicho/asyncomplete-anylist/blob/assets/images/asyncomplete-anylist-sample-1.png)
