@@ -37,7 +37,7 @@ function! asyncomplete#sources#anylist#completor(opt, ctx) abort
   " process items
   for l:item in l:items
     if v:t_dict == type(l:item)
-      call extend(l:cache, s:s:generate_list(a:opt, a:ctx, l:kw, l:item))
+      call extend(l:cache, s:generate_list(a:opt, a:ctx, l:kw, l:item))
     endif
   endfor
 
